@@ -1,0 +1,45 @@
+﻿<!doctype html>
+<html lang="en" prefix="op: http://media.facebook.com/op#">
+<head>
+    <meta charset="utf-8">
+    <link rel="canonical" href="{url}">
+    <meta property="op:markup_version" content="v1.0">
+    <title>{title}</title>
+</head>
+<body>
+<article>
+    <header>
+        <h1>{title}</h1>
+        <h2>{subtitle}</h2>
+
+        {authors}
+
+        <figure data-mode="aspect-fit" data-feedback="fb: likes">
+            <img src="{img}" />
+            <!--<figcaption>This image is amazing</figcaption>-->
+        </figure>
+
+
+        <h3 class="op-kicker">
+            {topic}
+        </h3>
+
+        <time class="op-published" datetime="{pubdateISO}">{pubdate}</time>
+        <time class="op-modified" dateTime="{modifiedISO}">{modified}</time>
+    </header>
+    
+    {body}
+
+    <figure class="op-tracker">
+        <iframe src="https://fee.org/articleservice/TrackingCodes/" hidden></iframe>
+    </figure>
+
+    <footer>
+        <aside>Follow the Foundation for Economic Education on <a href="https://www.facebook.com/feeonline/">Facebook</a> and <a href="http://twitter.com/feeonline">Twitter</a>, and sign up for the <a href="https://fee.org/resources/fee-daily/">FEE Daily</a></aside>
+
+        
+        <small>This work is licensed under a Creative Commons Attribution 4.0 International License, except for material where copyright is reserved by a party other than FEE.</small>
+    </footer>
+</article>
+</body>
+</html>
