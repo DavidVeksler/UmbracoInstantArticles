@@ -92,7 +92,6 @@ namespace FEE.Domain.InstantArticles
 
                 bodyText = HtmlUtils.WrapImagesInFigure(bodyText);
 
-
                 bodyText = HtmlUtils.WrapSocialInFigure(bodyText);
 
                 bodyText = HtmlUtils.RemoveFiguresFromParagraph(bodyText);
@@ -102,10 +101,6 @@ namespace FEE.Domain.InstantArticles
                 Debug.WriteLine(ex);
             }
 
-
-            //<figure data-feedback="fb:likes, fb:comments">
-
-
             var contents = new StringBuilder(FeeDomainResources.InstantArticleBody);
 
             /*<figure>
@@ -114,8 +109,6 @@ namespace FEE.Domain.InstantArticles
             </figure>*/
 
             contents.Replace("{body}", bodyText);
-
-            //contents.Replace("<span class=\"quote\">", "<aside>");
 
             contents.Replace("{title}", Content.Title);
             contents.Replace("{img}", Content.FeaturedImageUrl);
@@ -138,7 +131,7 @@ namespace FEE.Domain.InstantArticles
                 <a title=""{title}"">{author}</a>                
             </address>
             ";
-            var authorsStr = "";
+            var authorsStr = string.Empty;
 
             var authors = ContentHelper.GetAuthors(Content["authors"]);
             if (authors.Any())

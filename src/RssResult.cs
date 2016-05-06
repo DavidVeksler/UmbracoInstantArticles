@@ -17,6 +17,7 @@ namespace FEE.Domain.Syndication
     {
         private readonly SyndicationFeed _feed;
         private readonly IPublishedContent _model;
+        public string Format = "atom";
 
         public RssResult(SyndicationFeed feed, IPublishedContent model)
         {
@@ -26,10 +27,10 @@ namespace FEE.Domain.Syndication
 
         public override void ExecuteResult(ControllerContext context)
         {
-            string format = "atom";
+            
             if (context.HttpContext.Request.QueryString["format"] != null)
             {
-                format = context.HttpContext.Request.QueryString["format"];
+                Format = context.HttpContext.Request.QueryString["format"];
             }
 
             context.HttpContext.Response.ContentType = "application/rss+xml";
@@ -49,7 +50,7 @@ namespace FEE.Domain.Syndication
                 xmlWriter.WriteProcessingInstruction("xml-stylesheet", xsltHeader);
 
                 SyndicationFeedFormatter formatter;
-                if (format == "rss")
+                if (Format == "rss")
                 {
                     formatter = _feed.GetRss20Formatter();
                 }
