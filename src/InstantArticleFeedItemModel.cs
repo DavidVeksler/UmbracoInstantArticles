@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using FEE.Domain;
+using FEE.Domain.InstantArticles;
 using FEE.Domain.People;
 using FEE.Domain.Syndication;
 using FEE.InstantArticles;
@@ -90,94 +91,7 @@ namespace FEE.Web.App_Code.Controllers
 
         public string BodyText
         {
-            get
-            {
-                //< !--template: https://www.facebook.com/feeonline/publishing_tools/?section=INSTANT_ARTICLES_SAMPLE-->
-                string bodyText = Content.GetPropertyValue<string>("bodyText", true);
-
-                try
-                {
-                    string pattern = @"(?<=<span class=""quote"">)(?<content>.+?)(?=</span>)";
-                    bodyText = Regex.Replace(bodyText, pattern, m => "<aside>" + m.Groups["content"].Value + "</aside>");
-
-                    bodyText = HtmlUtils.MakeUrlsAbsolute(bodyText);
-                    
-                    // needs more testing
-                    //bodyText = HtmlUtils.SanitizeHtml(bodyText);
-
-                    bodyText = HtmlUtils.WrapImagesInFigure(bodyText);
-
-
-                    bodyText = HtmlUtils.WrapSocialInFigure(bodyText);
-
-                    bodyText = HtmlUtils.RemoveFiguresFromParagraph(bodyText);
-
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
-
-               
-
-                //<figure data-feedback="fb:likes, fb:comments">
-
-
-
-                StringBuilder contents = new StringBuilder(FeeDomainResources.InstantArticleBody);
-
-                /*<figure>
-                    <img src="@UrlUtils.GetExternalUrl(instantArticleImage.Image)" class="instant-article"/>
-                    <figcaption>@Html.Raw(instantArticleImage.ImageCaption)</figcaption>
-                </figure>*/
-
-                contents.Replace("{body}", bodyText);
-
-                //contents.Replace("<span class=\"quote\">", "<aside>");
-
-                contents.Replace("{title}", Title);
-                contents.Replace("{img}", FeaturedImageUrl);
-                contents.Replace("{subtitle}", this.Description.StripHtml());
-
-
-                contents.Replace("{pubdate}", this.PublicationDate.ToLongDateString());
-                contents.Replace("{pubdateISO}", this.PublicationDate.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-
-
-                contents.Replace("{modified}", this.UpdateDate.ToLongDateString()); ;
-                contents.Replace("{modifiedISO}", this.UpdateDate.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-
-                contents.Replace("{url}", this.UrlWithDomain());
-                contents.Replace("{topic}", this["topic"]?.ToString() ?? string.Empty);
-
-                string authorTemplate = @"
-            <address>
-                <a title=""{title}"">{author}</a>
-                <!-- {bio} -->
-            </address>
-";
-                string authorsStr = "";
-
-                List<IPublishedContent> authors = ContentHelper.GetAuthors(this["authors"]);
-                if (authors.Any())
-                {
-                    foreach (IPublishedContent author in authors)
-                    {
-                        var authorModel = AuthorModelBuilder.GetAuthorModel(author);
-                        StringBuilder a = new StringBuilder(authorTemplate);
-                        a.Replace("{author}", authorModel.FullName);
-                        a.Replace("{bio}", authorModel.BriefBio);
-                        a.Replace("{title}", authorModel.Title);
-
-                        authorsStr += a.ToString();
-                    }
-                }
-
-                contents.Replace("{authors}", authorsStr);
-
-                return contents.ToString();
-
-            }
+            get { return InstantArticleBuilder.GetArticleBody(this); }
         }
 
         public DateTime PublicationDate
@@ -205,7 +119,7 @@ namespace FEE.Web.App_Code.Controllers
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.Error<Domain.Syndication.ArticleSyndicationModel>("FeaturedImageUrl", ex);
+                    LogHelper.Error<ArticleSyndicationModel>("FeaturedImageUrl", ex);
                 }
                 return string.Empty;
             }
