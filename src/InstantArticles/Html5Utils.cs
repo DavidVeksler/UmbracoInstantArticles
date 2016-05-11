@@ -3,11 +3,10 @@ using System.Linq;
 using System.Text;
 using HtmlAgilityPack;
 using ServiceStack.Common.Extensions;
-using System.Web;
 
-namespace FEE.InstantArticles
+namespace FEE.Domain.InstantArticles
 {
-    public static class HtmlUtils
+    public static class Html5Utils
     {
         private static readonly Dictionary<string, string[]> ValidHtmlTags =
             new Dictionary<string, string[]>
@@ -55,7 +54,7 @@ namespace FEE.InstantArticles
 
             // Select whitelist tag names
             var whitelist = (from kv in ValidHtmlTags
-                             select kv.Key).ToArray();
+                select kv.Key).ToArray();
 
             // Scrub tags not in whitelist
             CleanNodes(allNodes, whitelist);
@@ -64,8 +63,8 @@ namespace FEE.InstantArticles
             foreach (var tag in ValidHtmlTags)
             {
                 IEnumerable<HtmlNode> nodes = from n in allNodes.DescendantsAndSelf()
-                                              where n.Name == tag.Key
-                                              select n;
+                    where n.Name == tag.Key
+                    select n;
 
                 if (nodes == null) continue;
 
@@ -241,7 +240,8 @@ namespace FEE.InstantArticles
                 HtmlAttribute src = link.Attributes["src"];
                 if (!string.IsNullOrWhiteSpace(src?.Value))
                 {
-                    string newNodeStr = @"<figure data-feedback=""fb: likes, fb: comments""><img src=""" + src.Value + @"""/><figure>";
+                    string newNodeStr = @"<figure data-feedback=""fb: likes, fb: comments""><img src=""" + src.Value +
+                                        @"""/><figure>";
 
                     var newNode = HtmlNode.CreateNode(newNodeStr);
                     link.ParentNode.ReplaceChild(newNode, link);
@@ -249,7 +249,7 @@ namespace FEE.InstantArticles
 
             }
             string final = allNodes.InnerHtml;
-            
+
             //bug:
             final = final.Replace("<figure></figure>", string.Empty);
 
@@ -301,15 +301,15 @@ namespace FEE.InstantArticles
             var document = html.DocumentNode;
 
             var figures = document.SelectNodes("//figure");
-            if(figures == null )
+            if (figures == null)
             {
                 return source;
             }
 
-            foreach(HtmlNode figure in figures)
+            foreach (HtmlNode figure in figures)
             {
                 HtmlNode parent = figure.ParentNode;
-                if(parent.Name.ToLower() == "p")
+                if (parent.Name.ToLower() == "p")
                 {
                     parent.ParentNode.InsertBefore(figure, parent);
                     parent.RemoveChild(figure);
@@ -321,23 +321,25 @@ namespace FEE.InstantArticles
 
             return final;
         }
+
+        public static string[] GetVideoUrls(string source)
+        {
+            HtmlDocument html = GetHtml(source);
+
+            if (html == null) return new string[] {};
+
+            var document = html.DocumentNode;
+
+            var embeds = document.SelectNodes("//iframe|//video/source");
+            
+            List<string> urls = null;
+            if (embeds != null)
+            {
+                urls = embeds.Select(link => link.GetAttributeValue("src", "")).ToList();
+            }
+
+            return urls?.ToArray();
+        }
     }
-
-
-    //    var toExternal = new FriendlyHtmlRewriteToExternal(UrlBuilder.RebaseKind.ToRootRelative);
-    //    input = Regex.Replace(input, "<a(.*?)href=\"/link/*\"", "<a$1href=\"" + EPiServer.Configuration.Settings.Instance.SiteUrl + Global.UrlRewriteProvider.ConvertToExternal(urlBuilder, null, System.Text.Encoding.UTF8), RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    //    input = Regex.Replace(input, "<img(.*?)src=\"/link/*\"", "<img$1src=\"" + EPiServer.Configuration.Settings.Instance.SiteUrl, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-    //    // Make url's absolute
-    //    Global.UrlRewriteProvider.ConvertToExternal(urlBuilder, null, System.Text.Encoding.UTF8);
-    //    var urlBuilder = new UrlBuilder("");
-    //{
-    //public static string RewriteUrlsToAbsolut(string input)
-
-    //    return toExternal.RewriteString(
-    //        new UrlBuilder(HttpContext.Current.Request.Path),
-    //        new UrlBuilder(HttpContext.Current.Request.RawUrl),
-    //        HttpContext.Current.Response.ContentEncoding,
-    //        input);
-    //}
+    
 }

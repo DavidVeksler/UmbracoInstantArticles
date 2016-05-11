@@ -1,14 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using FEE.Domain;
 using FEE.Domain.InstantArticles;
-using FEE.Domain.People;
 using FEE.Domain.Syndication;
-using FEE.InstantArticles;
 using Umbraco.Cms.Custom;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
@@ -20,18 +14,18 @@ namespace FEE.Web.App_Code.Controllers
 {
     public class InstantArticleFeedItemModel : PublishedContentWrapped, IArticleSyndicationModel
     {
+        public InstantArticleFeedItemModel(IPublishedContent content) : base(content)
+        {
+        }
+
         public int Id
         {
             get { return base.Id; }
-
         }
+
         public string UrlWithDomain()
         {
             return this.UrlAbsolute();
-        }
-
-        public InstantArticleFeedItemModel(IPublishedContent content) : base(content)
-        {
         }
 
         public string Title
@@ -136,7 +130,7 @@ namespace FEE.Web.App_Code.Controllers
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.Error<Domain.Syndication.ArticleSyndicationModel>("AttachedFile", ex);
+                    LogHelper.Error<ArticleSyndicationModel>("AttachedFile", ex);
                 }
                 return null;
             }

@@ -27,7 +27,7 @@ namespace FEE.Web.App_Code.Controllers
             SyndicationFeed feed = FeedGenerator.GetFeed(rootPageModel,
                 articles.Take(maxItems).Select(x => new InstantArticleFeedItemModel(x)));
 
-            return new RssResult(feed, rootPageModel);
+            return new RssResult(feed, rootPageModel) {Format = "rss"};
         }
 
         /// <summary>

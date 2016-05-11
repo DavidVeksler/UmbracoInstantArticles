@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using FEE.Domain.People;
 using FEE.Domain.SocialSharing;
 using FEE.Domain.UmbracoHelpers;
-using FEE.InstantArticles;
 using FEE.Web.App_Code.Controllers;
 using Umbraco.Cms.Custom;
 using Umbraco.Core.Logging;
@@ -85,16 +84,16 @@ namespace FEE.Domain.InstantArticles
                 var pattern = @"(?<=<span class=""quote"">)(?<content>.+?)(?=</span>)";
                 bodyText = Regex.Replace(bodyText, pattern, m => "<aside>" + m.Groups["content"].Value + "</aside>");
 
-                bodyText = HtmlUtils.MakeUrlsAbsolute(bodyText);
+                bodyText = Html5Utils.MakeUrlsAbsolute(bodyText);
 
                 // needs more testing
                 //bodyText = HtmlUtils.SanitizeHtml(bodyText);
 
-                bodyText = HtmlUtils.WrapImagesInFigure(bodyText);
+                bodyText = Html5Utils.WrapImagesInFigure(bodyText);
 
-                bodyText = HtmlUtils.WrapSocialInFigure(bodyText);
+                bodyText = Html5Utils.WrapSocialInFigure(bodyText);
 
-                bodyText = HtmlUtils.RemoveFiguresFromParagraph(bodyText);
+                bodyText = Html5Utils.RemoveFiguresFromParagraph(bodyText);
             }
             catch (Exception ex)
             {
@@ -103,15 +102,19 @@ namespace FEE.Domain.InstantArticles
 
             var contents = new StringBuilder(FeeDomainResources.InstantArticleBody);
 
-            /*<figure>
-                <img src="@UrlUtils.GetExternalUrl(instantArticleImage.Image)" class="instant-article"/>
-                <figcaption>@Html.Raw(instantArticleImage.ImageCaption)</figcaption>
-            </figure>*/
+            
 
             contents.Replace("{body}", bodyText);
 
             contents.Replace("{title}", Content.Title);
-            contents.Replace("{img}", Content.FeaturedImageUrl);
+
+            string videoUrl = VideoHelper.ExtractMediaFileUrlFromVideoEmbeds(Content);
+            
+            const string imgTag = @"<img src=""{img}"" />";
+            const string videoTag = @"<video><source src=""{img}"" type=""video/mp4"" /></video>";
+
+            contents.Replace("{img}", !string.IsNullOrWhiteSpace(videoUrl) ? videoTag.Replace("{img}", videoUrl) : imgTag.Replace("{img}", Content.FeaturedImageUrl));
+
             contents.Replace("{subtitle}", Content.Description.StripHtml());
 
 
